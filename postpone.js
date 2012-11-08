@@ -14,23 +14,23 @@
 		Object = window.Object,
 		Date = window.Date,
 		JSON = window.JSON,
-		postpone = {};
+		postpone = {},
 
-	/**
-	 * Object that saves all the dates with its callbacks.
-	 * @name queue
-	 * @type Object
-	 * @example
-	 * {
-	 *     'Wed Sep 26 2012 17:00:00 GMT-0300 (ART)': function () {
-	 *         console.log('Task to be executed on September 26th.');
-	 *     },
-	 *     'Thu Nov 8 2012 23:30:00 GMT-0300 (ART)': function () {
-	 *         console.log('Task to be executed on November 8th.');
-	 *     }
-	 * }
-	 */
-	postpone.queue = JSON.parse(storage.getItem('postponeQueue')) || {};
+		/**
+		 * Object that saves all the dates with its callbacks.
+		 * @type Object
+		 * @private
+		 * @example
+		 * {
+		 *     'Wed Sep 26 2012 17:00:00 GMT-0300 (ART)': function () {
+		 *         console.log('Task to be executed on September 26th.');
+		 *     },
+		 *     'Thu Nov 8 2012 23:30:00 GMT-0300 (ART)': function () {
+		 *         console.log('Task to be executed on November 8th.');
+		 *     }
+		 * }
+		 */
+		queue = JSON.parse(storage.getItem('postponeQueue')) || {};
 
 	/**
 	 * Method that associates a task with the corresponding date string.
@@ -50,9 +50,9 @@
 		// than a Date object.
 		on = Date(on);
 		// Set the method to be executed into the date string key
-		postpone.queue[on] = callback;
+		queue[on] = callback;
 		// Save all the postpone queue into local storage
-		storage.setItem('postponeQueue', JSON.stringify(postpone.queue));
+		storage.setItem('postponeQueue', JSON.stringify(queue));
 	};
 
 	/**
@@ -64,18 +64,18 @@
 	 */
 	postpone.check = function () {
 		// Proceed only if there are at least ONE task into queue
-		if (Object.keys(postpone.queue).length === 0) { return false; }
+		if (Object.keys(queue).length === 0) { return false; }
 		// Create a new Date instance of today
 		var now = new Date(),
 			// Get the first task on queue
-			task = new Date(Object.keys(postpone.queue)[0]);
+			task = new Date(Object.keys(queue)[0]);
 		// Compare task time with the new instance of Date
 		// Continue only if it IS or WAS time to execute the task
 		if (task <= now) {
 			// Execute the task callback
-			postpone.queue[task]();
+			queue[task]();
 			// Forget about this task for future executions
-			delete postpone.queue[task];
+			delete queue[task];
 			// Look for more tasks that shoulda been launched (recursive)
 			postpone.check();
 		}
