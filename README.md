@@ -1,4 +1,4 @@
-# Postpone v.1
+# Postpone v0.2
 Tool to manage a queue of tasks for browser games.
 
 ## Purpose
