@@ -5,7 +5,7 @@ Tool to manage a queue of tasks for browser games.
 Provide a tool to use when a browser game needs to set a queue of tasks to be executed in specific times, even if the game window was closed.
 
 ## Work in progress
-* Add cross-browsing support by using an exact imitation of the DOM storage, but making use of cookies.
+* Improve the cross-devices support of storage by using MemoryStore, LocalStorageStore, WebSqlStorean, or an exact imitation of the DOM storage, but making use of cookies.
 * Manage OS notifications.
 
 ## Change log
