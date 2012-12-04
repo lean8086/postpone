@@ -1,5 +1,5 @@
-# Postpone v0.3
-Tool to manage a queue of tasks for browser apps.
+# Postpone v0.4
+Tool to manage a queue of tasks for browser-based apps.
 
 ## Purpose
 Execute specified tasks, even those that had to be run when the browser window remained closed.
@@ -9,6 +9,10 @@ Execute specified tasks, even those that had to be run when the browser window r
 * Improve the cross-device support of storage by using PhoneGap or cookies.
 
 ## Change log
+
+### v0.4
+* Use the *on* parameter of the *set()* method as a delay from "now" expressed in minutes.
+* Fixed bug: *repeatAfter* was always **1**.
 
 ### v0.3
 * Add the ability to create a recursive task by specifying a delay time.

@@ -1,6 +1,6 @@
 /*!
- * Postpone v0.3
- * Tool to manage a queue of tasks for browser games.
+ * Postpone v0.4
+ * Tool to manage a queue of tasks for browser-based apps.
  * Copyright (c) 2012 Leandro Linares
  * Released under the MIT license
  * http://opensource.org/licenses/MIT
@@ -33,17 +33,22 @@
 	 *     }
 	 * }
 	 */
-	postpone.queue = JSON.parse(storage.getItem('postponeQueue')) || {};
+	postpone.queue = JSON.parse(storage.getItem('postponeQueue')) || {};
 
 	/**
 	 * Method that associates a task with the corresponding date string.
 	 * @name set
 	 * @methodOf postpone
-	 * @param String on Date string to use as key on the queue map.
+	 * @param Number || String on Delay from "now" to use as key on the queue
+	 * map. Expressed in minutes. Also, it can be a date string.
 	 * @param Function callback Method to be saved into queue map to
 	 * execute via key when the match with it task.
 	 * @param Number repeatAfter Delay time, expressed in minutes, that
 	 * determines when to execute a clone of the current task.
+	 * @example
+	 * postpone.set(30, function () {
+	 *     console.log('Task to be executed in half an hour.');
+	 * });
 	 * @example
 	 * postpone.set('2012/09/26 17:15', function () {
 	 *     console.log('Task to be executed on September 26th.');
@@ -54,17 +59,28 @@
 	 * }, 60);
 	 */
 	postpone.set = function (on, callback, repeatAfter) {
-		// Transform into a Date instance
-		on = new Date(on);
+		// When "on" is a delay value, count it from now
+		if (typeof on === 'number') {
+			// Grab the delay value apart
+			var delay = on;
+			// Instance a date object of now
+			on = new Date();
+			// Count the delay from now
+			on.setMinutes(on.getMinutes() + delay);
+		// When "on" is just a date reference
+		} else {
+			// Transform into a Date instance
+			on = new Date(on);
+		}
 		// Set the method to be executed on the date of the string key
 		postpone.queue[on] = function () {
 			// Execute the specified callback passing the date as parameter
 			callback(on);
 			// Create a new cloned task by deliying the specified time
 			// of the repeatAfter variable
-			if (!!repeatAfter) {
-				// Update the minutes date with the repeatAfter parameter
-				on = on.setMinutes(on.getMinutes() + 1);
+			if (!!repeatAfter) {
+				// Update the task date with the new delay
+				on.setMinutes(on.getMinutes() + repeatAfter);
 				// Set the same task with the new date, the same callback
 				// and the same repetition delay
 				postpone.set(on, callback, repeatAfter);
@@ -103,7 +119,7 @@
 	};
 
 	/**
-	 * Tool to manage a queue of tasks for browser games.
+	 * Tool to manage a queue of tasks for browser-based apps.
 	 * @name postpone
 	 * @namespace
 	 */
