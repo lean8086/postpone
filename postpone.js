@@ -1,8 +1,9 @@
 /*!
- * Postpone
+ * Postpone v0.3
  * Tool to manage a queue of tasks for browser games.
- * @version 0.2
- * @author Leandro Linares (@lean8086)
+ * Copyright (c) 2012 Leandro Linares
+ * Released under the MIT license
+ * http://opensource.org/licenses/MIT
  */
 (function (window) {
 	'use strict';
@@ -41,18 +42,34 @@
 	 * @param String on Date string to use as key on the queue map.
 	 * @param Function callback Method to be saved into queue map to
 	 * execute via key when the match with it task.
+	 * @param Number repeatAfter Delay time, expressed in minutes, that
+	 * determines when to execute a clone of the current task.
 	 * @example
-	 * postpone.set('2012/09/26 17:00', function () {
+	 * postpone.set('2012/09/26 17:15', function () {
 	 *     console.log('Task to be executed on September 26th.');
 	 * });
+	 * @example
+	 * postpone.set('2012/12/03 22:00', function () {
+	 *     console.log('Execute each hour from December 3rd at 10pm.');
+	 * }, 60);
 	 */
-	postpone.set = function (on, callback) {
-		// Get the date string of "on". Calling it as a regular function
-		// (i.e. without the new operator) will return a string rather
-		// than a Date object.
-		on = Date(on);
-		// Set the method to be executed into the date string key
-		postpone.queue[on] = callback;
+	postpone.set = function (on, callback, repeatAfter) {
+		// Transform into a Date instance
+		on = new Date(on);
+		// Set the method to be executed on the date of the string key
+		postpone.queue[on] = function () {
+			// Execute the specified callback passing the date as parameter
+			callback(on);
+			// Create a new cloned task by deliying the specified time
+			// of the repeatAfter variable
+			if (!!repeatAfter) {
+				// Update the minutes date with the repeatAfter parameter
+				on = on.setMinutes(on.getMinutes() + 1);
+				// Set the same task with the new date, the same callback
+				// and the same repetition delay
+				postpone.set(on, callback, repeatAfter);
+			}
+		};
 		// Save all the postpone queue into local storage
 		storage.setItem('postponeQueue', JSON.stringify(postpone.queue));
 	};
@@ -76,8 +93,8 @@
 		// Compare task time with the new instance of Date
 		// Continue only if it IS or WAS time to execute the task
 		if (taskDate <= now) {
-			// Execute the task callback passing the date object as parameter
-			postpone.queue[key](taskDate);
+			// Execute the task
+			postpone.queue[key]();
 			// Forget about this task for future executions
 			delete postpone.queue[key];
 			// Look for more tasks that shoulda been launched (recursive)
