@@ -1,17 +1,17 @@
 # Postpone v0.3
-Tool to manage a queue of tasks for browser games.
+Tool to manage a queue of tasks for browser apps.
 
 ## Purpose
 Execute specified tasks, even those that had to be run when the browser window remained closed.
 
 ## Work in progress
 * Manage OS notifications.
-* Improve the cross-device support of storage by using PhoneGap or an imitation of the DOM storage making use of cookies.
+* Improve the cross-device support of storage by using PhoneGap or cookies.
 
 ## Change log
 
 ### v0.3
-* Add the ability of create a recursive task by specifying a delay time.
+* Add the ability to create a recursive task by specifying a delay time.
 * Fixed bug: The date received as parameter of the executed task was the creation date of the task.
 
 ### v0.2
