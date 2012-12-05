@@ -1,4 +1,4 @@
-# Postpone v0.4
+# Postpone v0.5
 Tool to manage a queue of tasks for browser-based apps.
 
 ## Purpose
@@ -9,6 +9,10 @@ Execute specified tasks, even those that had to be run when the browser window r
 * Improve the cross-device support of storage by using PhoneGap or cookies.
 
 ## Change log
+
+### v0.5
+* Add the *postpone.clear* method to reset the queue.
+* Fixed bug: The native methods *JSON.stringify* and *JSON.parse* did not support "function" as JSON value. Now, it creates a custom method as string for each task and executes it by using a *script* HTML tag (not *eval* and not *new Function*).
 
 ### v0.4
 * Use the *on* parameter of the *set()* method as a delay from "now" expressed in minutes.
