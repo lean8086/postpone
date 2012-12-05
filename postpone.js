@@ -5,19 +5,17 @@
  * Released under the MIT license
  * http://opensource.org/licenses/MIT
  */
-(function (window) {
+(function (win) {
 	'use strict';
 
-	/**
-	 * Local cache for fastest access
-	 */
-	var storage = window.localStorage,
-		Object = window.Object,
-		Date = window.Date,
-		JSON = window.JSON,
-		postpone = {},
-		head = window.document.getElementsByTagName('head')[0],
-		script = window.document.createElement('script');
+	var storage = win.localStorage,
+		JSON = win.JSON,
+		Object = win.Object,
+		Date = win.Date,
+		Math = win.Math,
+		head = win.document.getElementsByTagName('head')[0],
+		script = win.document.createElement('script'),
+		postpone = {};
 
 	/**
 	 * Object that stores all the tasks with these execution date.
@@ -119,16 +117,25 @@
 			// Get the first task on queue
 			taskDate = new Date(taskDateString),
 			// Each tag created for each task execution
-			scriptTag;
+			scriptTag,
+			// String to be executed as a wrapper of the task
+			scriptTagContent;
 
 		// Compare task time with the new instance of Date
 		// Continue only if it IS or WAS time to execute the task
-		// TODO: delete tag
 		if (taskDate <= now) {
 			// Get a copy of an empty script element
 			scriptTag = script.cloneNode();
+			// Set an unique identificator
+			scriptTag.id = 'postpone_' + Math.floor(Math.random() * 999999);
 			// Append the task callback as an auto-executable method into the script element
-			scriptTag.innerHTML = '(' + postpone.queue[taskDateString] + '())';
+			scriptTagContent = '(' + postpone.queue[taskDateString] + '());\n';
+			// Identify the script tag
+			scriptTagContent += 'var tag = document.getElementById(\'' + scriptTag.id + '\');';
+			// Add the self-delete feature to the script tag
+			scriptTagContent += 'document.getElementsByTagName(\'head\')[0].removeChild(tag);';
+			// Append the content to the tag
+			scriptTag.innerHTML = scriptTagContent;
 			// Add the script tag to the head tag. It forces the execution
 			head.appendChild(scriptTag);
 			// Forget about this task for future executions
@@ -157,6 +164,6 @@
 	 * @name postpone
 	 * @namespace
 	 */
-	window.postpone = postpone;
+	win.postpone = postpone;
 
 }(this));
