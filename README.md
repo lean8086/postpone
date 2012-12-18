@@ -14,6 +14,7 @@ Execute specified tasks, even those that had to be run when the browser window r
 * Create the *q* alias for the *queue* property to fastest access when debugging.
 * Beautify the code of the callback function (as a string).
 * Use spaces instead tabs to indentate, and get a full validation at JSLint.
+* Use the *repeatAfter* parameter to get recursivity, instead to calculate the next date from execution.
 
 ### v0.5
 * Add the *postpone.clear* method to reset the queue.
