@@ -74,15 +74,15 @@
         }
 
         // Start to concatenate the task method as a string
-        method = 'function () {\n\t';
+        method = 'function () {\n';
         // Define the callback as a private member to use more than once
-        method += 'var callback = ' + callback + ';\n\t';
+        method += '\tvar callback = ' + callback + ';\n';
         // Execute the specified callback giving the task date as parameter
-        method += 'callback(\'' + taskDateString + '\');\n';
+        method += '\tcallback(\'' + taskDateString + '\');\n';
         // Create a new cloned task by deliying the specified time of "repeatAfter"
         if (!!repeatAfter) {
             // Set the same task with the new date and the same parameters
-            method += 'postpone.set(\'' + repeatAfter + '\', callback, ' + repeatAfter + ');';
+            method += '\tpostpone.set(\'' + repeatAfter + '\', callback, ' + repeatAfter + ');';
         }
         // Close the method
         method += '}';
@@ -125,9 +125,9 @@
             // Append the task callback as an auto-executable method into the script element
             scriptTagContent = '(' + postpone.queue[taskDateString] + '());\n';
             // Identify the script tag
-            scriptTagContent += 'var tag = document.getElementById(\'' + scriptTag.id + '\');';
+            scriptTagContent += '\tvar tag = document.getElementById(\'' + scriptTag.id + '\');\n';
             // Add the self-delete feature to the script tag
-            scriptTagContent += 'document.getElementsByTagName(\'head\')[0].removeChild(tag);';
+            scriptTagContent += '\tdocument.getElementsByTagName(\'head\')[0].removeChild(tag);';
             // Append the content to the tag
             scriptTag.innerHTML = scriptTagContent;
             // Add the script tag to the head tag. It forces the execution
