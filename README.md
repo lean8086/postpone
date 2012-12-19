@@ -1,4 +1,4 @@
-# Postpone v0.5.1
+# Postpone v0.6
 Tool to manage a queue of tasks for browser-based apps.
 
 ## Purpose
@@ -9,6 +9,9 @@ Execute specified tasks, even those that had to be run when the browser window r
 * Improve the cross-device support of storage by using PhoneGap or cookies.
 
 ## Change log
+
+### v0.6
+* Fixed bug: Tasks were saved unsorted and the *check* method only verifies one task at a time (the first one).
 
 ### v0.5.1
 * Create the *q* alias for the *queue* property to fastest access when debugging.

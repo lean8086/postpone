@@ -1,5 +1,5 @@
 /*!
- * Postpone v0.5.1
+ * Postpone v0.6
  * Tool to manage a queue of tasks for browser-based apps.
  * Copyright (c) 2012 Leandro Linares
  * Released under the MIT license
@@ -58,7 +58,11 @@
             // The "callback" method as a string. It also contains the recursivity.
             method,
             // The "on" date as a string
-            taskDateString;
+            taskDateString,
+            // Grab queue as local, to make changes before save on storage
+            queue = postpone.queue,
+            // After set the new task, it will be sorted with the other right here
+            sortedQueue = {};
 
         // When "on" is a delay value, count it from now
         if (typeof on === 'number') {
@@ -82,15 +86,31 @@
         // Create a new cloned task by deliying the specified time of "repeatAfter"
         if (!!repeatAfter) {
             // Set the same task with the new date and the same parameters
-            method += '\tpostpone.set(\'' + repeatAfter + '\', callback, ' + repeatAfter + ');';
+            method += '\tpostpone.set(\'' + repeatAfter + '\', callback, ' + repeatAfter + ');\n';
         }
         // Close the method
         method += '}';
 
-        // Grab on the queue
-        postpone.queue[on] = method;
-        // Grab on the storage
-        storage.setItem('postponeQueue', JSON.stringify(postpone.queue));
+        // Grab on the local queue
+        queue[on] = method;
+
+        // Sorting the queue: work with the keys as an array
+        Object.keys(postpone.queue).sort(function (dateA, dateB) {
+            // B should come earlier, push A to end
+            if (dateB < dateA) { return 1; }
+            // B should come later, push A to begin
+            if (dateB > dateA) { return -1; }
+            // A and B are equal
+            return 0;
+        // Sort tasks into a new object based on the above sorted array
+        }).forEach(function (date) {
+            sortedQueue[date] = postpone.queue[date];
+        });
+
+        // Update the global queue
+        postpone.queue = sortedQueue;
+        // Update the queue on the storage
+        storage.setItem('postponeQueue', JSON.stringify(sortedQueue));
     };
 
     /**
