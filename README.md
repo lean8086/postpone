@@ -50,6 +50,7 @@ postpone.set('Thu May 03 2012 22:00:00 GMT-0300 (ART)', function () { ... }, 60)
 
 ### postpone.check()
 Executes all the past tasks by comparing the dates into the queue with today's date and time.
+
 **Example:** Initialize the check cicle (each minute)
 ```javascript
 setInterval(postpone.check, 60000);
