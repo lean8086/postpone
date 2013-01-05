@@ -1,4 +1,7 @@
 # Postpone v0.5.3
+Tool to manage a queue of tasks for browser-based apps.
+
+## Purpose
 Executes specified tasks, even those that had to be run when the browser window remained closed.
 
 ## Work in progress
