@@ -1,7 +1,7 @@
 /*!
- * Postpone v0.6
+ * Postpone v0.5.3
  * Tool to manage a queue of tasks for browser-based apps.
- * Copyright (c) 2012 Leandro Linares
+ * Copyright (c) 2013 Leandro Linares
  * Released under the MIT license
  * http://opensource.org/licenses/MIT
  */
@@ -18,27 +18,58 @@
         postpone = {};
 
     /**
-     * Object that stores all the tasks with these execution date.
+     * Creates a script with the task itself and executes it.
+     * @function
+     * @private
+     * @todo find a fancy way to delete the tag <script>
+     */
+    function executeTask(dateString) {
+        // Get a copy of an empty script element
+        var scriptTag = script.cloneNode(),
+            // String to be executed as a wrapper of the task
+            scriptTagContent;
+
+        // Set an unique identificator
+        scriptTag.id = 'postpone_' + Math.floor(Math.random() * 999999);
+        // Append the task callback as an auto-executable method into the script element
+        scriptTagContent = '(' + postpone.queue[dateString] + '());\n';
+        // Identify the script tag
+        scriptTagContent += 'var tag = document.getElementById(\'' + scriptTag.id + '\');\n';
+        // Add the self-delete feature to the script tag
+        scriptTagContent += 'document.getElementsByTagName(\'head\')[0].removeChild(tag);';
+        // Append the content to the tag
+        scriptTag.innerHTML = scriptTagContent;
+
+        // Add the script tag to the head tag. It forces the execution
+        head.appendChild(scriptTag);
+        // Forget about this task for future executions
+        delete postpone.queue[dateString];
+        // Grab on the storage
+        storage.setItem('postponeQueue', JSON.stringify(postpone.queue));
+    }
+
+    /**
+     * Stores all the tasks with its execution date.
      * @name set
      * @memberOf postpone
      * @type Object
      * @example
      * {
-     *     'Wed Sep 26 2012 17:00:00 GMT-0300 (ART)': 'function () { ... }';
+     *     'Wed Sep 26 2012 17:00:00 GMT-0300 (ART)': 'function () { ... }',
+     *     'Fri Jan 04 2013 13:00:00 GMT-0300 (ART)': 'function () { ... }'
      * }
      */
     postpone.queue = postpone.q = JSON.parse(storage.getItem('postponeQueue')) || {};
 
     /**
-     * Method that associates a task with the corresponding date string.
+     * Associates a task with the corresponding date string.
      * @name set
      * @methodOf postpone
-     * @param Number || String on Delay from "now" to use as key on the queue
-     * map. Expressed in minutes. Also, it can be a date string.
-     * @param Function callback Method to be saved into queue map to
-     * execute via key when the match with it task.
-     * @param Number [repeatAfter] Delay time, expressed in minutes, that
-     * determines when to execute a clone of the current task.
+     * @param Number || String on A number representing the delay in minutes from "now" to use
+     * as key on the queue map. Also, it can be a valid date string.
+     * @param Function callback Method to be saved into the queue map to execute via its date string.
+     * @param Number [repeatAfter] A number that determines when to execute a clone of the current
+     * task. Expressed in minutes.
      * @example
      * postpone.set(30, function () {
      *     console.log('Task to be executed in half an hour.');
@@ -48,21 +79,15 @@
      *     console.log('Task to be executed on September 26th.');
      * });
      * @example
-     * postpone.set('2012/12/03 22:00', function () {
+     * postpone.set('Thu May 03 2012 22:00:00 GMT-0300 (ART)', function () {
      *     console.log('Execute each hour from December 3rd at 10pm.');
      * }, 60);
      */
     postpone.set = function (on, callback, repeatAfter) {
-        // Used to grab the "on" value when it's a number
-        var delay,
-            // The "callback" method as a string. It also contains the recursivity.
-            method,
-            // The "on" date as a string
-            taskDateString,
-            // Grab queue as local, to make changes before save on storage
-            queue = postpone.queue,
-            // After set the new task, it will be sorted with the other right here
-            sortedQueue = {};
+        // The callback method as a string. It also contains the recursivity.
+        var method,
+            // Used to grab the "on" value when it's a number
+            delay;
 
         // When "on" is a delay value, count it from now
         if (typeof on === 'number') {
@@ -77,46 +102,29 @@
             on = new Date(on);
         }
 
-        // Start to concatenate the task method as a string
+        // Round seconds to get a normalized date
+        on.setSeconds(0);
+
         method = 'function () {\n';
         // Define the callback as a private member to use more than once
         method += '\tvar callback = ' + callback + ';\n';
         // Execute the specified callback giving the task date as parameter
-        method += '\tcallback(\'' + taskDateString + '\');\n';
+        method += '\tcallback(\'' + on + '\');\n';
         // Create a new cloned task by deliying the specified time of "repeatAfter"
-        if (!!repeatAfter) {
+        if (repeatAfter !== undefined) {
             // Set the same task with the new date and the same parameters
-            method += '\tpostpone.set(\'' + repeatAfter + '\', callback, ' + repeatAfter + ');\n';
+            method += '\tpostpone.set(' + repeatAfter + ', callback, ' + repeatAfter + ');\n';
         }
-        // Close the method
         method += '}';
 
-        // Grab on the local queue
-        queue[on] = method;
-
-        // Sorting the queue: work with the keys as an array
-        Object.keys(postpone.queue).sort(function (dateA, dateB) {
-            // B should come earlier, push A to end
-            if (dateB < dateA) { return 1; }
-            // B should come later, push A to begin
-            if (dateB > dateA) { return -1; }
-            // A and B are equal
-            return 0;
-        // Sort tasks into a new object based on the above sorted array
-        }).forEach(function (date) {
-            sortedQueue[date] = postpone.queue[date];
-        });
-
-        // Update the global queue
-        postpone.queue = sortedQueue;
+        // Grab on the queue
+        postpone.queue[on] = method;
         // Update the queue on the storage
-        storage.setItem('postponeQueue', JSON.stringify(sortedQueue));
+        storage.setItem('postponeQueue', JSON.stringify(postpone.queue));
     };
 
     /**
-     * Method that executes all the past tasks by comparing the dates
-     * into the queue with today's date and time. When it matchs with
-     * more than one task to launch, it executes again (recursivity).
+     * Executes all the past tasks by comparing the dates into the queue with today's date and time.
      * @name check
      * @methodOf postpone
      */
@@ -124,45 +132,19 @@
         // Proceed only if there are at least ONE task into queue
         if (Object.keys(postpone.queue).length === 0) { return false; }
 
-        // Create a new Date instance of today
-        var now = new Date(),
-            // The string saved as task key
-            taskDateString = Object.keys(postpone.queue)[0],
-            // Get the first task on queue
-            taskDate = new Date(taskDateString),
-            // Each tag created for each task execution
-            scriptTag,
-            // String to be executed as a wrapper of the task
-            scriptTagContent;
+        // Create a new Date instance of now
+        var now = new Date();
 
-        // Compare task time with the new instance of Date
-        // Continue only if it IS or WAS time to execute the task
-        if (taskDate <= now) {
-            // Get a copy of an empty script element
-            scriptTag = script.cloneNode();
-            // Set an unique identificator
-            scriptTag.id = 'postpone_' + Math.floor(Math.random() * 999999);
-            // Append the task callback as an auto-executable method into the script element
-            scriptTagContent = '(' + postpone.queue[taskDateString] + '());\n';
-            // Identify the script tag
-            scriptTagContent += '\tvar tag = document.getElementById(\'' + scriptTag.id + '\');\n';
-            // Add the self-delete feature to the script tag
-            scriptTagContent += '\tdocument.getElementsByTagName(\'head\')[0].removeChild(tag);';
-            // Append the content to the tag
-            scriptTag.innerHTML = scriptTagContent;
-            // Add the script tag to the head tag. It forces the execution
-            head.appendChild(scriptTag);
-            // Forget about this task for future executions
-            delete postpone.queue[taskDateString];
-            // Grab on the storage
-            storage.setItem('postponeQueue', JSON.stringify(postpone.queue));
-            // Look for more tasks that shoulda been launched when browser kept closed
-            postpone.check();
-        }
+        // Work with the array with the queue keys
+        Object.keys(postpone.queue).forEach(function (dateString) {
+            // Compare task time with the new instance of Date
+            // Execute the task only if it IS or WAS time to execute it
+            if (new Date(dateString) <= now) { executeTask(dateString); }
+        });
     };
 
     /**
-     * Reset the queue.
+     * Resets the queue.
      * @name clear
      * @methodOf postpone
      */
