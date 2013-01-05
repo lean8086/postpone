@@ -2,7 +2,7 @@
 Tool to manage a queue of tasks for browser-based apps.
 
 ## Purpose
-Executes specified tasks, even those that had to be run when the browser window remained closed.
+Execute specified tasks, even those that had to be run when the browser window remained closed.
 
 ## Work in progress
 * Manage OS notifications.
@@ -24,14 +24,14 @@ Associates a task with the corresponding date string.
 postpone.set(on, callback[, repeatAfter]);
 ```
 
-#### on
-A number representing the delay in minutes from "now" to use as key on the queue map. Also, it can be a valid *date string*.
+* **on**
+    * A number representing the delay in minutes from "now" to use as key on the queue map. Also, it can be a valid *date string*.
 
-#### callback
-Method to be saved into the queue map to execute via its *date string*.
+* **callback**
+    * Method to be saved into the queue map to execute via its *date string*.
 
-#### repeatAfter (optional)
-A number that determines when to execute a clone of the current task. Expressed in minutes.
+* **repeatAfter** (optional)
+    * A number that determines when to execute a clone of the current task. Expressed in minutes.
 
 **Example:** Task to be executed in half an hour.
 ```javascript
