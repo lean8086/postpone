@@ -1,5 +1,5 @@
 /*!
- * Postpone v0.5.3
+ * Postpone v0.5.4
  * Tool to manage a queue of tasks for browser-based apps.
  * Copyright (c) 2013 Leandro Linares
  * Released under the MIT license
@@ -107,13 +107,13 @@
 
         method = 'function () {\n';
         // Define the callback as a private member to use more than once
-        method += '\tvar callback = ' + callback + ';\n';
+        method += '\tvar postponeCallback = ' + callback + ';\n';
         // Execute the specified callback giving the task date as parameter
-        method += '\tcallback(\'' + on + '\');\n';
+        method += '\tpostponeCallback(\'' + on + '\');\n';
         // Create a new cloned task by deliying the specified time of "repeatAfter"
         if (repeatAfter !== undefined) {
             // Set the same task with the new date and the same parameters
-            method += '\tpostpone.set(' + repeatAfter + ', callback, ' + repeatAfter + ');\n';
+            method += '\tpostpone.set(' + repeatAfter + ', postponeCallback, ' + repeatAfter + ');\n';
         }
         method += '}';
 

@@ -1,4 +1,4 @@
-# Postpone v0.5.3
+# Postpone v0.5.4
 Tool to manage a queue of tasks for browser-based apps.
 
 ## Purpose
@@ -60,6 +60,9 @@ setInterval(postpone.check, 60000);
 Resets the queue.
 
 ## Change log
+
+### v0.5.4
+* Fixed bug: The name `callback` used to refer to an internal executable method when a task is saved with `set()`, was confused with the parameter sent as callback.
 
 ### v0.5.3
 * Fixed bug: The delay of the new task created with the `repeatAfter` parameter, was a string. It wasn't recursive.
