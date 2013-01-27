@@ -1,4 +1,4 @@
-# Postpone v0.5.4
+# Postpone v0.5.5
 Tool to manage a queue of tasks for browser-based apps and games.
 
 ## Purpose
@@ -60,6 +60,10 @@ setInterval(postpone.check, 60000);
 Resets the queue.
 
 ## Change log
+
+### v0.5.5
+* Fixed bug: Two equal dates only saves the last defined. Use the seconds of the date as an unique index on `set()`. It allows to grab 60 tasks per minute (0-59).
+* Fixed bug: `clear()` only resets the `queue` and not the `q`.
 
 ### v0.5.4
 * Fixed bug: The name `callback` used to refer to an internal executable method when a task is saved with `set()`, was confused with the parameter sent as callback.

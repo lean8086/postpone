@@ -1,5 +1,5 @@
 /*!
- * Postpone v0.5.4
+ * Postpone v0.5.5
  * Tool to manage a queue of tasks for browser-based apps.
  * Copyright (c) 2013 Leandro Linares
  * Released under the MIT license
@@ -87,7 +87,9 @@
         // The callback method as a string. It also contains the recursivity.
         var method,
             // Used to grab the "on" value when it's a number
-            delay;
+            delay,
+            // Number to differentiate tasks with the same date
+            index = 0;
 
         // When "on" is a delay value, count it from now
         if (typeof on === 'number') {
@@ -104,6 +106,10 @@
 
         // Round seconds to get a normalized date
         on.setSeconds(0);
+        // Use seconds to get an unique date
+        while (postpone.queue[on] !== undefined) {
+            on.setSeconds(index += 1);
+        }
 
         method = 'function () {\n';
         // Define the callback as a private member to use more than once
@@ -150,7 +156,7 @@
      */
     postpone.clear = function () {
         // Set the queue as an empty object
-        postpone.queue = {};
+        postpone.queue = postpone.q = {};
         // Save the new queue into local storage
         storage.setItem('postponeQueue', '{}');
     };
