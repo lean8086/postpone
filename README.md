@@ -5,6 +5,7 @@ Tool to manage a queue of tasks for browser-based apps and games.
 Execute specified tasks, even those that had to be run when the browser window remained closed.
 
 ## Work in progress
+* Tests!
 * Manage OS notifications.
 * Improve the cross-device support of storage.
 
